@@ -1,5 +1,5 @@
 import { login } from "../gateway/login";
-import { LoginError } from "./errors/LoginError";
+import { LoginError } from "../../common/errors/LoginError";
 import { APIError } from "../../common/errors/RestApiError";
 import { HttpStatusCode } from "../../common/types/http.model";
 
