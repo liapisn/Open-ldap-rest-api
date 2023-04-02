@@ -1,3 +1,6 @@
-import { IRoute } from "../interfaces/route.interface";
+import { IRoute } from '../common/interfaces/route.interface';
+import { AuthRouter } from '../auth/server/authRouter';
 
-export const routes: IRoute[] = []
+const authRouter = new AuthRouter();
+
+export const routes: IRoute[] = [authRouter];

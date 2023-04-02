@@ -1,8 +1,12 @@
 import express from "express";
-import { IRoute } from "./interfaces/route.interface";
-import { invalidPathHandler } from "./errors/RestApiError";
+import { IRoute } from "./common/interfaces/route.interface";
+import { errorHandler, invalidPathHandler } from "./common/errors/RestApiError";
 import e from "express";
 import dotenv from "dotenv";
+import bodyParser from "body-parser";
+import cors from "cors";
+import helmet from "helmet";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -17,15 +21,25 @@ export class App {
 
   private initializeRoutes(routes: IRoute[]): void {
     routes.forEach((route) => {
-      this.app.use('/api/v1/', route.router);
+      this.app.use("/api/v1/", route.router);
     });
 
+    this.app.use(errorHandler);
     this.app.use(invalidPathHandler);
   }
 
-  async init(): Promise<e.Application> {
-    this.app.set('etag', false);
+  private initializeMiddlewares(): void {
+    this.app.use(bodyParser.json());
+    this.app.use(cors());
+    this.app.use(helmet());
+    this.app.use(cookieParser());
+  }
 
+  async init(): Promise<e.Application> {
+    this.app.set("etag", false);
+
+    // We have to initialize the middleware before the routes
+    this.initializeMiddlewares();
     this.initializeRoutes(this.routes);
 
     return this.app;
