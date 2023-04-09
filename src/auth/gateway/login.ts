@@ -1,5 +1,5 @@
 import { ldapClient } from "../../common/ldapClient";
-import { LoginError } from "../domain/errors/LoginError";
+import { LoginError } from "../../common/errors/LoginError";
 
 export const login = async (username, password): Promise<void> => {
   await new Promise<void>((resolve, reject) => {
