@@ -1,7 +1,12 @@
 import { IRoute } from "../../common/interfaces/route.interface";
 import { Router } from "express";
 import { asyncHandler } from "../../common/middlewares/asyncHandler";
-import { getUser, getUserBody } from "./usersRestApi";
+import {
+  createUser,
+  createUserBody,
+  getUser,
+  getUserBody,
+} from "./usersRestApi";
 import { hasAccessCookie } from "../../common/middlewares/hasAccessCookie";
 import { validateRequest } from "../../common/middlewares/validateRequest";
 
@@ -18,6 +23,12 @@ export class UsersRouter implements IRoute {
       `${this.path}`,
       [hasAccessCookie, validateRequest(getUserBody)],
       asyncHandler(getUser)
+    );
+
+    this.router.post(
+      `${this.path}`,
+      [hasAccessCookie, validateRequest(createUserBody)],
+      asyncHandler(createUser)
     );
   }
 }
