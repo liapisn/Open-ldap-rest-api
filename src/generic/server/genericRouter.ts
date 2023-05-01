@@ -4,6 +4,8 @@ import { hasAccessCookie } from "../../common/middlewares/hasAccessCookie";
 import { validateRequest } from "../../common/middlewares/validateRequest";
 import {
   createGenericBody,
+  deleteGenericBody,
+  genericDelete,
   genericGet,
   genericPost,
   getGenericBody,
@@ -29,6 +31,12 @@ export class GenericRouter implements IRoute {
       `${this.path}`,
       [hasAccessCookie, validateRequest(createGenericBody)],
       asyncHandler(genericPost)
+    );
+
+    this.router.delete(
+      `${this.path}`,
+      [hasAccessCookie, validateRequest(deleteGenericBody)],
+      asyncHandler(genericDelete)
     );
   }
 }
