@@ -6,3 +6,16 @@ export const ldapClient = ldap.createClient({
   reconnect: true,
   idleTimeout: 3000,
 });
+
+export const ldapChange = (operation: string, field: object) => {
+  const type = Object.keys(field)[0];
+  const values = Array.isArray(field[type]) ? field[type] : [field[type]];
+
+  return new ldap.Change({
+    operation: operation,
+    modification: {
+      type: type,
+      values: values,
+    },
+  });
+};

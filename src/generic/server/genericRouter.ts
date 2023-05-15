@@ -8,7 +8,9 @@ import {
   genericDelete,
   genericGet,
   genericPost,
+  genericUpdate,
   getGenericBody,
+  updateGenericBody,
 } from "./genericRestApi";
 import { asyncHandler } from "../../common/middlewares/asyncHandler";
 
@@ -37,6 +39,12 @@ export class GenericRouter implements IRoute {
       `${this.path}`,
       [hasAccessCookie, validateRequest(deleteGenericBody)],
       asyncHandler(genericDelete)
+    );
+
+    this.router.put(
+      `${this.path}/:dn`,
+      [hasAccessCookie, validateRequest(updateGenericBody)],
+      asyncHandler(genericUpdate)
     );
   }
 }

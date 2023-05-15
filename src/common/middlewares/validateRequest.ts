@@ -7,7 +7,10 @@ export const validateRequest = (schema: Joi.Schema): RequestHandler => {
   return (req, res, next) => {
     const { error } = schema.validate(req.body);
     if (error) {
-      throw new APIError(HttpStatusCode.BAD_REQUEST, error.message);
+      throw new APIError(
+        HttpStatusCode.BAD_REQUEST,
+        `${error.message} on body`
+      );
     }
     next();
   };
