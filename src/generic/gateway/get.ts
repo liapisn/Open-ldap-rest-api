@@ -3,14 +3,14 @@ import { LoginError } from "../../common/errors/LoginError";
 import { NotFound } from "../domain/errors/NotFound";
 import { InvalidOrganizationalUnit } from "../domain/errors/InvalidOrganizationalUnit";
 
-export const get = async (username, password, options, ou, multiple) => {
+export const getEntriesByFilter = async (username, password, options, ou) => {
   return await new Promise<any>((resolve, reject) => {
     ldapClient.bind(username, password, async (err) => {
       if (err) {
         return reject(new LoginError("Wrong credentials"));
       }
 
-      const search = new Promise<any | null>((resolve, reject) => {
+      const entries = new Promise<any | null>((resolve, reject) => {
         ldapClient.search(`${ou},ou=system`, options, async (err, res) => {
           const entries = [] as {
             dn: String;
@@ -23,20 +23,14 @@ export const get = async (username, password, options, ou, multiple) => {
 
           res.on("searchEntry", (entry) => {
             if (entry.pojo.attributes.length) {
-              if (multiple) {
-                entries.push({
-                  dn: entry.pojo.objectName,
-                  uid: entry.pojo.attributes[2].values[0],
-                  sn: entry.pojo.attributes[0].values[0],
-                  cn: entry.pojo.attributes[1].values[0],
-                });
-              } else
-                resolve({
-                  dn: entry.pojo.objectName,
-                  uid: entry.pojo.attributes[2].values[0],
-                  sn: entry.pojo.attributes[0].values[0],
-                  cn: entry.pojo.attributes[1].values[0],
-                });
+              const result = entry.pojo.attributes.reduce(
+                (acc, attribute) => {
+                  acc[attribute.type] = attribute.values[0];
+                  return acc;
+                },
+                { dn: entry.pojo.objectName }
+              );
+              entries.push(result);
             }
           });
           res.on("error", (err) => {
@@ -55,12 +49,58 @@ export const get = async (username, password, options, ou, multiple) => {
         });
       });
 
-      return search
+      return entries
         .then((result) => {
           if (!result?.length) return reject(new NotFound("Entry not found"));
           return resolve(result);
         })
         .catch((err) => reject(err));
+    });
+  });
+};
+
+export const getEntryByCn = async (username, password, options, ou) => {
+  return await new Promise<any>((resolve, reject) => {
+    ldapClient.bind(username, password, async (err) => {
+      if (err) {
+        return reject(new LoginError("Wrong credentials"));
+      }
+
+      const entry = await new Promise<any | null>((resolve, reject) => {
+        ldapClient.search(`${ou},ou=system`, options, async (err, res) => {
+          if (err) return reject(new NotFound("Entry not found"));
+
+          res.on("searchEntry", (entry) => {
+            if (entry.pojo.attributes.length) {
+              const result = entry.pojo.attributes.reduce(
+                (acc, attribute) => {
+                  acc[attribute.type] = attribute.values[0];
+                  return acc;
+                },
+                { dn: entry.pojo.objectName }
+              );
+
+              return resolve(result);
+            }
+          });
+
+          res.on("error", (err) => {
+            switch (err.code) {
+              case 32:
+                return reject(new InvalidOrganizationalUnit(err.message));
+            }
+
+            return reject(err);
+          });
+
+          res.on("end", () => {
+            return resolve(null);
+          });
+        });
+      });
+
+      if (!entry) return reject(new NotFound("Entry not found"));
+      return resolve(entry);
     });
   });
 };
