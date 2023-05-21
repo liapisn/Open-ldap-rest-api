@@ -1,10 +1,5 @@
 import { Credentials } from "../../common/types/auth";
-import { LoginError } from "../../common/errors/LoginError";
-import { APIError } from "../../common/errors/RestApiError";
-import { HttpStatusCode } from "../../common/types/http.model";
-import { AlreadyExists } from "./errors/AlreadyExists";
 import { create } from "../gateway/create";
-import { InvalidOrganizationalUnit } from "./errors/InvalidOrganizationalUnit";
 
 class CreateCommandHandler {
   handle = async (command: CreateCommand) => {
@@ -13,25 +8,12 @@ class CreateCommandHandler {
       objectClass: "inetOrgPerson",
     };
 
-    try {
-      await create(
-        command.credentials.username,
-        command.credentials.password,
-        opts,
-        command.organizationalUnits
-      );
-    } catch (e) {
-      if (e instanceof LoginError)
-        throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
-      if (e instanceof AlreadyExists)
-        throw new APIError(HttpStatusCode.CONFLICT, e.message);
-      if (e instanceof InvalidOrganizationalUnit)
-        throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
-
-      throw e;
-    }
-
-    return;
+    return await create(
+      command.credentials.username,
+      command.credentials.password,
+      opts,
+      command.organizationalUnits
+    );
   };
 }
 

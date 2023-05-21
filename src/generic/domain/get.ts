@@ -1,10 +1,5 @@
 import { Credentials } from "../../common/types/auth";
-import { LoginError } from "../../common/errors/LoginError";
-import { APIError } from "../../common/errors/RestApiError";
-import { HttpStatusCode } from "../../common/types/http.model";
-import { NotFound } from "./errors/NotFound";
 import { getEntriesByFilter, getEntryByCn } from "../gateway/get";
-import { InvalidOrganizationalUnit } from "./errors/InvalidOrganizationalUnit";
 
 class GetByFilterCommandHandler {
   handle = async (command: GetByFilterCommand): Promise<any> => {
@@ -14,24 +9,12 @@ class GetByFilterCommandHandler {
       attributes: ["*"],
     };
 
-    let user;
-    try {
-      user = await getEntriesByFilter(
-        command.credentials.username,
-        command.credentials.password,
-        opts,
-        command.organizationalUnits
-      );
-    } catch (e) {
-      if (e instanceof LoginError)
-        throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
-      if (e instanceof NotFound || e instanceof InvalidOrganizationalUnit)
-        throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
-
-      throw e;
-    }
-
-    return user;
+    return await getEntriesByFilter(
+      command.credentials.username,
+      command.credentials.password,
+      opts,
+      command.organizationalUnits
+    );
   };
 }
 
@@ -63,24 +46,12 @@ class GetByCnCommandHandler {
       attributes: ["*"],
     };
 
-    let user;
-    try {
-      user = await getEntryByCn(
-        command.credentials.username,
-        command.credentials.password,
-        opts,
-        command.organizationalUnits
-      );
-    } catch (e) {
-      if (e instanceof LoginError)
-        throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
-      if (e instanceof NotFound || e instanceof InvalidOrganizationalUnit)
-        throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
-
-      throw e;
-    }
-
-    return user;
+    return await getEntryByCn(
+      command.credentials.username,
+      command.credentials.password,
+      opts,
+      command.organizationalUnits
+    );
   };
 }
 

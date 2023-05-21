@@ -15,6 +15,9 @@ import { UpdateCommand } from "../domain/update";
 import { LoginError } from "../../common/errors/LoginError";
 import { APIError } from "../../common/errors/RestApiError";
 import { NoSuchAttribute } from "../domain/errors/NoSuchAttribute";
+import { NotFound } from "../domain/errors/NotFound";
+import { InvalidOrganizationalUnit } from "../domain/errors/InvalidOrganizationalUnit";
+import { AlreadyExists } from "../domain/errors/AlreadyExists";
 
 export const getGenericBody = Joi.object({
   filter: Joi.string().required(),
@@ -29,7 +32,17 @@ export const genericGetEntries = async (req, res): Promise<Response> => {
     ous,
   });
 
-  const entries = await GetByFilterCommandHandler.handle(command);
+  let entries;
+  try {
+    entries = await GetByFilterCommandHandler.handle(command);
+  } catch (e) {
+    if (e instanceof LoginError)
+      throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
+    if (e instanceof NotFound || e instanceof InvalidOrganizationalUnit)
+      throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
+
+    throw e;
+  }
 
   return res.status(HttpStatusCode.OK).json({
     data: entries,
@@ -47,7 +60,17 @@ export const genericGetByCn = async (req, res): Promise<Response> => {
     ous,
   });
 
-  const entry = await GetByCnCommandHandler.handle(command);
+  let entry;
+  try {
+    entry = await GetByCnCommandHandler.handle(command);
+  } catch (e) {
+    if (e instanceof LoginError)
+      throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
+    if (e instanceof NotFound || e instanceof InvalidOrganizationalUnit)
+      throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
+
+    throw e;
+  }
 
   return res.status(HttpStatusCode.OK).json({
     data: entry,
@@ -70,7 +93,19 @@ export const genericPost = async (req, res): Promise<Response> => {
     data: req.body.entryData,
     ous: ous,
   });
-  await CreateCommandHandler.handle(command);
+
+  try {
+    await CreateCommandHandler.handle(command);
+  } catch (e) {
+    if (e instanceof LoginError)
+      throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
+    if (e instanceof AlreadyExists)
+      throw new APIError(HttpStatusCode.CONFLICT, e.message);
+    if (e instanceof InvalidOrganizationalUnit)
+      throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
+
+    throw e;
+  }
 
   return res.sendStatus(HttpStatusCode.OK);
 };
@@ -86,7 +121,17 @@ export const genericDelete = async (req, res): Promise<Response> => {
     cn,
     ous,
   });
-  await DeleteCommandHandler.handle(command);
+
+  try {
+    await DeleteCommandHandler.handle(command);
+  } catch (e) {
+    if (e instanceof LoginError)
+      throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
+    if (e instanceof NotFound)
+      throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
+
+    throw e;
+  }
 
   return res.sendStatus(HttpStatusCode.OK);
 };
