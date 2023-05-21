@@ -6,7 +6,8 @@ class UpdateEntryCommandHandler {
     await update(
       command.credentials.username,
       command.credentials.password,
-      command.dn,
+      command.cn,
+      command.organizationalUnits,
       command.updatedField
     );
   };
@@ -14,20 +15,24 @@ class UpdateEntryCommandHandler {
 
 export class UpdateCommand {
   credentials: Credentials;
-  dn: string;
+  cn: string;
+  organizationalUnits: string;
   updatedField: Object;
 
   constructor({
     credentials,
-    dn,
+    cn,
+    ous,
     updatedField,
   }: {
     credentials: Credentials;
-    dn: string;
+    cn: string;
+    ous: string[];
     updatedField: object;
   }) {
     this.credentials = credentials;
-    this.dn = dn;
+    this.cn = cn;
+    this.organizationalUnits = `ou=${ous.reverse().join(",ou=")}`;
     this.updatedField = updatedField;
   }
 }

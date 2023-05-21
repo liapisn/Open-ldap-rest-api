@@ -5,7 +5,8 @@ import { NoSuchAttribute } from "../domain/errors/NoSuchAttribute";
 export const update = async (
   username: string,
   password: string,
-  dn: string,
+  cn: string,
+  ou: string,
   newFields: object
 ) => {
   return await new Promise((resolve, reject) => {
@@ -16,7 +17,7 @@ export const update = async (
 
       const result = new Promise((resolve, reject) => {
         const change = ldapChange("replace", newFields);
-        ldapClient.modify(dn, change, (err) => {
+        ldapClient.modify(`cn=${cn},${ou},ou=system`, change, (err) => {
           if (err) {
             switch (err.code) {
               case 16:
