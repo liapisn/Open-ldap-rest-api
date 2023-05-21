@@ -5,10 +5,15 @@ import {
   GetCommandHandler,
   CreateCommandHandler,
   DeleteCommandHandler,
+  UpdateCommandHandler,
 } from "../domain";
 import { GetCommand } from "../domain/get";
 import { CreateCommand } from "../domain/create";
 import { DeleteCommand } from "../domain/delete";
+import { UpdateCommand } from "../domain/update";
+import { LoginError } from "../../common/errors/LoginError";
+import { APIError } from "../../common/errors/RestApiError";
+import { NoSuchAttribute } from "../domain/errors/NoSuchAttribute";
 
 export const getGenericBody = Joi.object({
   filter: Joi.string().required(),
@@ -66,5 +71,28 @@ export const genericDelete = async (req, res): Promise<Response> => {
   });
   await DeleteCommandHandler.handle(command);
 
+  return res.sendStatus(HttpStatusCode.OK);
+};
+
+export const updateGenericBody = Joi.object({
+  updatedField: Joi.object().required(),
+});
+
+export const genericUpdate = async (req, res): Promise<Response> => {
+  const command = new UpdateCommand({
+    credentials: req.credentials,
+    dn: req.params.dn,
+    updatedField: req.body.updatedField,
+  });
+  try {
+    await UpdateCommandHandler.handle(command);
+  } catch (e) {
+    if (e instanceof LoginError)
+      throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
+    if (e instanceof NoSuchAttribute)
+      throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
+
+    throw e;
+  }
   return res.sendStatus(HttpStatusCode.OK);
 };
