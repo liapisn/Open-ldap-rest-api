@@ -2,36 +2,78 @@ import { HttpStatusCode } from "../../common/types/http.model";
 import Joi from "joi";
 import { Response } from "express";
 import {
-  GetCommandHandler,
+  GetByFilterCommandHandler,
   CreateCommandHandler,
   DeleteCommandHandler,
   UpdateCommandHandler,
+  GetByCnCommandHandler,
 } from "../domain";
-import { GetCommand } from "../domain/get";
+import { GetByCnCommand, GetByFilterCommand } from "../domain/get";
 import { CreateCommand } from "../domain/create";
 import { DeleteCommand } from "../domain/delete";
 import { UpdateCommand } from "../domain/update";
 import { LoginError } from "../../common/errors/LoginError";
 import { APIError } from "../../common/errors/RestApiError";
 import { NoSuchAttribute } from "../domain/errors/NoSuchAttribute";
+import { NotFound } from "../domain/errors/NotFound";
+import { InvalidOrganizationalUnit } from "../domain/errors/InvalidOrganizationalUnit";
+import { AlreadyExists } from "../domain/errors/AlreadyExists";
 
 export const getGenericBody = Joi.object({
   filter: Joi.string().required(),
 });
 
-export const genericGet = async (req, res): Promise<Response> => {
+export const genericGetEntries = async (req, res): Promise<Response> => {
   const ous = req.path.split("/").filter((ou) => ou !== "");
 
-  const command = new GetCommand({
+  const command = new GetByFilterCommand({
     credentials: req.credentials,
     filter: req.body.filter,
     ous,
-    multiple: req.query.multiple?.toLowerCase() === "true",
   });
-  const entries = await GetCommandHandler.handle(command);
+
+  let entries;
+  try {
+    entries = await GetByFilterCommandHandler.handle(command);
+  } catch (e) {
+    if (e instanceof LoginError)
+      throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
+    if (e instanceof NotFound || e instanceof InvalidOrganizationalUnit)
+      throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
+
+    throw e;
+  }
 
   return res.status(HttpStatusCode.OK).json({
     data: entries,
+  });
+};
+
+export const genericGetByCn = async (req, res): Promise<Response> => {
+  const ous = req.path
+    .split("/")
+    .filter((ou) => ou !== "" && ou !== req.params.cn);
+
+  const command = new GetByCnCommand({
+    credentials: req.credentials,
+    cn: req.params.cn,
+    ous,
+  });
+
+  let entry;
+  try {
+    entry = await GetByCnCommandHandler.handle(command);
+  } catch (e) {
+    if (e instanceof LoginError)
+      throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
+    if (e instanceof NotFound || e instanceof InvalidOrganizationalUnit)
+      throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
+
+    throw e;
+  }
+
+  return res.status(HttpStatusCode.OK).json({
+    data: entry,
   });
 };
 
@@ -51,25 +93,45 @@ export const genericPost = async (req, res): Promise<Response> => {
     data: req.body.entryData,
     ous: ous,
   });
-  await CreateCommandHandler.handle(command);
+
+  try {
+    await CreateCommandHandler.handle(command);
+  } catch (e) {
+    if (e instanceof LoginError)
+      throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
+    if (e instanceof AlreadyExists)
+      throw new APIError(HttpStatusCode.CONFLICT, e.message);
+    if (e instanceof InvalidOrganizationalUnit)
+      throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
+
+    throw e;
+  }
 
   return res.sendStatus(HttpStatusCode.OK);
 };
 
-export const deleteGenericBody = Joi.object({
-  cn: Joi.string().required(),
-});
-
 export const genericDelete = async (req, res): Promise<Response> => {
-  const ous = req.path.split("/").filter((ou) => ou !== "");
-  const cn = req.body.cn;
+  const ous = req.path
+    .split("/")
+    .filter((ou) => ou !== "" && ou !== req.params.cn);
+  const cn = req.params.cn;
 
   const command = new DeleteCommand({
     credentials: req.credentials,
     cn,
     ous,
   });
-  await DeleteCommandHandler.handle(command);
+
+  try {
+    await DeleteCommandHandler.handle(command);
+  } catch (e) {
+    if (e instanceof LoginError)
+      throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
+    if (e instanceof NotFound)
+      throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
+
+    throw e;
+  }
 
   return res.sendStatus(HttpStatusCode.OK);
 };
@@ -79,9 +141,14 @@ export const updateGenericBody = Joi.object({
 });
 
 export const genericUpdate = async (req, res): Promise<Response> => {
+  const ous = req.path
+    .split("/")
+    .filter((ou) => ou !== "" && ou !== req.params.cn);
+
   const command = new UpdateCommand({
     credentials: req.credentials,
-    dn: req.params.dn,
+    cn: req.params.cn,
+    ous,
     updatedField: req.body.updatedField,
   });
   try {

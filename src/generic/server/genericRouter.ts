@@ -4,9 +4,9 @@ import { hasAccessCookie } from "../../common/middlewares/hasAccessCookie";
 import { validateRequest } from "../../common/middlewares/validateRequest";
 import {
   createGenericBody,
-  deleteGenericBody,
   genericDelete,
-  genericGet,
+  genericGetByCn,
+  genericGetEntries,
   genericPost,
   genericUpdate,
   getGenericBody,
@@ -24,9 +24,15 @@ export class GenericRouter implements IRoute {
 
   private initializeRoutes() {
     this.router.get(
+      `${this.path}/:cn`,
+      [hasAccessCookie],
+      asyncHandler(genericGetByCn)
+    );
+
+    this.router.get(
       `${this.path}`,
       [hasAccessCookie, validateRequest(getGenericBody)],
-      asyncHandler(genericGet)
+      asyncHandler(genericGetEntries)
     );
 
     this.router.post(
@@ -36,13 +42,13 @@ export class GenericRouter implements IRoute {
     );
 
     this.router.delete(
-      `${this.path}`,
-      [hasAccessCookie, validateRequest(deleteGenericBody)],
+      `${this.path}/:cn`,
+      [hasAccessCookie],
       asyncHandler(genericDelete)
     );
 
     this.router.put(
-      `${this.path}/:dn`,
+      `${this.path}/:cn`,
       [hasAccessCookie, validateRequest(updateGenericBody)],
       asyncHandler(genericUpdate)
     );

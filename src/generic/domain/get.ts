@@ -1,63 +1,79 @@
 import { Credentials } from "../../common/types/auth";
-import { LoginError } from "../../common/errors/LoginError";
-import { APIError } from "../../common/errors/RestApiError";
-import { HttpStatusCode } from "../../common/types/http.model";
-import { NotFound } from "./errors/NotFound";
-import { get } from "../gateway/get";
-import { InvalidOrganizationalUnit } from "./errors/InvalidOrganizationalUnit";
+import { getEntriesByFilter, getEntryByCn } from "../gateway/get";
 
-class GetCommandHandler {
-  handle = async (command: GetCommand): Promise<any> => {
+class GetByFilterCommandHandler {
+  handle = async (command: GetByFilterCommand): Promise<any> => {
     const opts = {
       filter: command.filter,
       scope: "sub",
-      attributes: ["uid", "sn", "cn"],
+      attributes: ["*"],
     };
 
-    let user;
-    try {
-      user = await get(
-        command.credentials.username,
-        command.credentials.password,
-        opts,
-        command.organizationalUnits,
-        command.multiple
-      );
-    } catch (e) {
-      if (e instanceof LoginError)
-        throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
-      if (e instanceof NotFound || e instanceof InvalidOrganizationalUnit)
-        throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
-
-      throw e;
-    }
-
-    return user;
+    return await getEntriesByFilter(
+      command.credentials.username,
+      command.credentials.password,
+      opts,
+      command.organizationalUnits
+    );
   };
 }
 
-export class GetCommand {
+export class GetByFilterCommand {
   credentials: Credentials;
   filter: string;
   organizationalUnits: string;
-  multiple: boolean;
 
   constructor({
     credentials,
     filter,
     ous,
-    multiple,
   }: {
     credentials: Credentials;
     filter: string;
     ous: string[];
-    multiple: boolean;
   }) {
     this.credentials = credentials;
     this.filter = filter;
     this.organizationalUnits = `ou=${ous.reverse().join(",ou=")}`;
-    this.multiple = multiple;
   }
 }
 
-export const constructHandler = new GetCommandHandler();
+class GetByCnCommandHandler {
+  handle = async (command: GetByCnCommand): Promise<any> => {
+    const opts = {
+      filter: `cn=${command.cn}`,
+      scope: "sub",
+      attributes: ["*"],
+    };
+
+    return await getEntryByCn(
+      command.credentials.username,
+      command.credentials.password,
+      opts,
+      command.organizationalUnits
+    );
+  };
+}
+
+export class GetByCnCommand {
+  credentials: Credentials;
+  cn: string;
+  organizationalUnits: string;
+
+  constructor({
+    credentials,
+    cn,
+    ous,
+  }: {
+    credentials: Credentials;
+    cn: string;
+    ous: string[];
+  }) {
+    this.credentials = credentials;
+    this.cn = cn;
+    this.organizationalUnits = `ou=${ous.reverse().join(",ou=")}`;
+  }
+}
+
+export const constructHandler = new GetByFilterCommandHandler();
+export const constructByCnHandler = new GetByCnCommandHandler();
