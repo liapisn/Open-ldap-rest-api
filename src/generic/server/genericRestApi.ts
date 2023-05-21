@@ -2,12 +2,13 @@ import { HttpStatusCode } from "../../common/types/http.model";
 import Joi from "joi";
 import { Response } from "express";
 import {
-  GetCommandHandler,
+  GetByFilterCommandHandler,
   CreateCommandHandler,
   DeleteCommandHandler,
   UpdateCommandHandler,
+  GetByCnCommandHandler,
 } from "../domain";
-import { GetCommand } from "../domain/get";
+import { GetByCnCommand, GetByFilterCommand } from "../domain/get";
 import { CreateCommand } from "../domain/create";
 import { DeleteCommand } from "../domain/delete";
 import { UpdateCommand } from "../domain/update";
@@ -19,19 +20,37 @@ export const getGenericBody = Joi.object({
   filter: Joi.string().required(),
 });
 
-export const genericGet = async (req, res): Promise<Response> => {
+export const genericGetEntries = async (req, res): Promise<Response> => {
   const ous = req.path.split("/").filter((ou) => ou !== "");
 
-  const command = new GetCommand({
+  const command = new GetByFilterCommand({
     credentials: req.credentials,
     filter: req.body.filter,
     ous,
-    multiple: req.query.multiple?.toLowerCase() === "true",
   });
-  const entries = await GetCommandHandler.handle(command);
+
+  const entries = await GetByFilterCommandHandler.handle(command);
 
   return res.status(HttpStatusCode.OK).json({
     data: entries,
+  });
+};
+
+export const genericGetByCn = async (req, res): Promise<Response> => {
+  const ous = req.path
+    .split("/")
+    .filter((ou) => ou !== "" && ou !== req.params.cn);
+
+  const command = new GetByCnCommand({
+    credentials: req.credentials,
+    cn: req.params.cn,
+    ous,
+  });
+
+  const entry = await GetByCnCommandHandler.handle(command);
+
+  return res.status(HttpStatusCode.OK).json({
+    data: entry,
   });
 };
 
@@ -56,13 +75,11 @@ export const genericPost = async (req, res): Promise<Response> => {
   return res.sendStatus(HttpStatusCode.OK);
 };
 
-export const deleteGenericBody = Joi.object({
-  cn: Joi.string().required(),
-});
-
 export const genericDelete = async (req, res): Promise<Response> => {
-  const ous = req.path.split("/").filter((ou) => ou !== "");
-  const cn = req.body.cn;
+  const ous = req.path
+    .split("/")
+    .filter((ou) => ou !== "" && ou !== req.params.cn);
+  const cn = req.params.cn;
 
   const command = new DeleteCommand({
     credentials: req.credentials,
@@ -79,9 +96,14 @@ export const updateGenericBody = Joi.object({
 });
 
 export const genericUpdate = async (req, res): Promise<Response> => {
+  const ous = req.path
+    .split("/")
+    .filter((ou) => ou !== "" && ou !== req.params.cn);
+
   const command = new UpdateCommand({
     credentials: req.credentials,
-    dn: req.params.dn,
+    cn: req.params.cn,
+    ous,
     updatedField: req.body.updatedField,
   });
   try {
