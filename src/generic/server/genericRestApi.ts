@@ -3,15 +3,17 @@ import Joi from "joi";
 import { Response } from "express";
 import {
   GetByFilterCommandHandler,
-  CreateCommandHandler,
-  DeleteCommandHandler,
-  UpdateCommandHandler,
   GetByCnCommandHandler,
+  CreateCommandHandler,
+  UpdateCommandHandler,
+  DeleteCommandHandler,
+  CopyCommandHandler,
 } from "../domain";
-import { GetByCnCommand, GetByFilterCommand } from "../domain/get";
 import { CreateCommand } from "../domain/create";
-import { DeleteCommand } from "../domain/delete";
+import { GetByCnCommand, GetByFilterCommand } from "../domain/get";
 import { UpdateCommand } from "../domain/update";
+import { DeleteCommand } from "../domain/delete";
+import { CopyCommand } from "../domain/copy";
 import { LoginError } from "../../common/errors/LoginError";
 import { APIError } from "../../common/errors/RestApiError";
 import { NoSuchAttribute } from "../domain/errors/NoSuchAttribute";
@@ -153,6 +155,31 @@ export const genericUpdate = async (req, res): Promise<Response> => {
   });
   try {
     await UpdateCommandHandler.handle(command);
+  } catch (e) {
+    if (e instanceof LoginError)
+      throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
+    if (e instanceof NoSuchAttribute)
+      throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
+
+    throw e;
+  }
+  return res.sendStatus(HttpStatusCode.OK);
+};
+
+export const copyBody = Joi.object({
+  location: Joi.string().required(),
+  dn: Joi.string().required(),
+});
+
+export const copy = async (req, res): Promise<Response> => {
+  const command = new CopyCommand({
+    credentials: req.credentials,
+    location: req.body.location,
+    dn: req.body.dn,
+  });
+
+  try {
+    await CopyCommandHandler.handle(command);
   } catch (e) {
     if (e instanceof LoginError)
       throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);

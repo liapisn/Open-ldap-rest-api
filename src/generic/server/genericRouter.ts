@@ -3,6 +3,8 @@ import { Router } from "express";
 import { hasAccessCookie } from "../../common/middlewares/hasAccessCookie";
 import { validateRequest } from "../../common/middlewares/validateRequest";
 import {
+  copy,
+  copyBody,
   createGenericBody,
   genericDelete,
   genericGetByCn,
@@ -51,6 +53,12 @@ export class GenericRouter implements IRoute {
       `${this.path}/:cn`,
       [hasAccessCookie, validateRequest(updateGenericBody)],
       asyncHandler(genericUpdate)
+    );
+
+    this.router.copy(
+      `${this.path}`,
+      [hasAccessCookie, validateRequest(copyBody)],
+      asyncHandler(copy)
     );
   }
 }
