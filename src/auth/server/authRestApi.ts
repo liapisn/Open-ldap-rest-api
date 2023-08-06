@@ -1,8 +1,9 @@
 import { LoginCommand } from "../domain/login";
 import { HttpStatusCode } from "../../common/types/http.model";
 import { LoginCommandHandler } from "../domain";
+import { Request, Response } from "express";
 
-export const login = async (req, res) => {
+export const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   const command = new LoginCommand({ username, password });

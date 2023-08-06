@@ -26,7 +26,7 @@ export class GenericRouter implements IRoute {
 
   private initializeRoutes() {
     this.router.get(
-      `${this.path}/:cn`,
+      `${this.path}/cns/:cn`,
       [hasAccessCookie],
       asyncHandler(genericGetByCn)
     );
@@ -44,19 +44,19 @@ export class GenericRouter implements IRoute {
     );
 
     this.router.delete(
-      `${this.path}/:cn`,
+      `${this.path}/cns/:cn`,
       [hasAccessCookie],
       asyncHandler(genericDelete)
     );
 
     this.router.put(
-      `${this.path}/:cn`,
+      `${this.path}/cns/:cn`,
       [hasAccessCookie, validateRequest(updateGenericBody)],
       asyncHandler(genericUpdate)
     );
 
     this.router.copy(
-      `${this.path}`,
+      `${this.path}/cns`,
       [hasAccessCookie, validateRequest(copyBody)],
       asyncHandler(copy)
     );
