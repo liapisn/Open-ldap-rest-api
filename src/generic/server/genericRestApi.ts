@@ -89,6 +89,7 @@ export const createGenericBody = Joi.object({
     cn: Joi.string().required(),
     sn: Joi.string(),
     uid: Joi.string(),
+    displayName: Joi.string(),
   }).required(),
 });
 
