@@ -150,7 +150,7 @@ export const genericDelete = async (
 };
 
 export const updateGenericBody = Joi.object({
-  updatedField: Joi.object().required(),
+  updatedFields: Joi.object().required(),
 });
 
 export const genericUpdate = async (
@@ -163,7 +163,7 @@ export const genericUpdate = async (
     credentials: req.credentials,
     cn: req.params.cn,
     ous,
-    updatedField: req.body.updatedField,
+    updatedFields: req.body.updatedFields,
   });
   try {
     await UpdateCommandHandler.handle(command);
