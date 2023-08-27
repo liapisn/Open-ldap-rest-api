@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  api:
+    container_name: Open-ldap-rest-api
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      - PORT=3000
+    restart: always
+    ports:
+      - "3000:3000"
