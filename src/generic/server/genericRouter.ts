@@ -56,7 +56,7 @@ export class GenericRouter implements IRoute {
     );
 
     this.router.copy(
-      `${this.path}/cns`,
+      `${this.path}`,
       [hasAccessCookie, validateRequest(copyBody)],
       asyncHandler(copy)
     );

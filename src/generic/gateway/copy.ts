@@ -1,6 +1,8 @@
 import { ldapClient, ldapCopy } from "../../common/ldapClient";
 import { LoginError } from "../../common/errors/LoginError";
 import { NoSuchAttribute } from "../domain/errors/NoSuchAttribute";
+import { NotFound } from "../domain/errors/NotFound";
+import { AlreadyExists } from "../domain/errors/AlreadyExists";
 
 export const copy = async (
   username: string,
@@ -14,28 +16,33 @@ export const copy = async (
         return reject(new LoginError("Wrong credentials"));
       }
 
-      const result = new Promise((resolve, reject) => {
-        const change = ldapCopy("add", dn);
+      try {
+        await copyEntry(ldapClient, location, dn);
+        return resolve();
+      } catch (e) {
+        return reject(e);
+      }
+    });
+  });
+};
 
-        ldapClient.modify(location, change, (err) => {
-          if (err) {
-            switch (err.code) {
-              case 16:
-              case 32:
-                return reject(new NoSuchAttribute(err.message));
-              default:
-                return reject(new Error(err));
-            }
-          }
-          return resolve(true);
-        });
-      });
+export const copyEntry = async (ldapClient, location, dn): Promise<void> => {
+  return await new Promise((resolve, reject) => {
+    const change = ldapCopy("add", dn);
 
-      result
-        .catch((err) => {
-          return reject(err);
-        })
-        .then(() => resolve());
+    ldapClient.modify(location, change, (err) => {
+      if (err) {
+        switch (err.code) {
+          case 16:
+          case 32:
+            return reject(new NoSuchAttribute(err.message));
+          case 20:
+            return reject(new AlreadyExists(err.message));
+          default:
+            return reject(new Error(err));
+        }
+      }
+      return resolve();
     });
   });
 };

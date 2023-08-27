@@ -197,6 +197,8 @@ export const copy = async (req: Request, res: Response): Promise<Response> => {
       throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
     if (e instanceof NoSuchAttribute)
       throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
+    if (e instanceof AlreadyExists)
+      throw new APIError(HttpStatusCode.CONFLICT, e.message);
 
     throw e;
   }
