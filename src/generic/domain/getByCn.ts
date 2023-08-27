@@ -1,9 +1,10 @@
 import { Credentials } from "../../common/types/auth";
 import { getEntryByCn } from "../gateway/getByCn";
 import { constructOrganizationalUnits } from "./common";
+import { Entity } from "./types";
 
 class GetByCnCommandHandler {
-  handle = async (command: GetByCnCommand): Promise<any> => {
+  handle = async (command: GetByCnCommand): Promise<Entity> => {
     const opts = {
       filter: `cn=${command.cn}`,
       scope: "sub",
@@ -39,4 +40,4 @@ export class GetByCnCommand {
   }
 }
 
-export const constructByCnHandler = new GetByCnCommandHandler();
+export const constructHandler = new GetByCnCommandHandler();

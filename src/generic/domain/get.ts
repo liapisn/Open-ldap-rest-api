@@ -1,9 +1,10 @@
 import { Credentials } from "../../common/types/auth";
 import { getEntriesByFilter } from "../gateway/get";
 import { constructOrganizationalUnits } from "./common";
+import { Entity } from "./types";
 
 class GetByFilterCommandHandler {
-  handle = async (command: GetByFilterCommand): Promise<any> => {
+  handle = async (command: GetByFilterCommand): Promise<Entity[]> => {
     const opts = this.constructOptions(command.filter);
 
     return await getEntriesByFilter(
