@@ -1,5 +1,6 @@
 import { Credentials } from "../../common/types/auth";
 import { update } from "../gateway/update";
+import { constructOrganizationalUnits } from "./common";
 
 class UpdateEntryCommandHandler {
   handle = async (command: UpdateCommand) => {
@@ -32,7 +33,7 @@ export class UpdateCommand {
   }) {
     this.credentials = credentials;
     this.cn = cn;
-    this.organizationalUnits = `ou=${ous.reverse().join(",ou=")}`;
+    this.organizationalUnits = constructOrganizationalUnits(ous);
     this.updatedField = updatedField;
   }
 }

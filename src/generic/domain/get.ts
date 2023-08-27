@@ -1,13 +1,10 @@
 import { Credentials } from "../../common/types/auth";
 import { getEntriesByFilter } from "../gateway/get";
+import { constructOrganizationalUnits } from "./common";
 
 class GetByFilterCommandHandler {
   handle = async (command: GetByFilterCommand): Promise<any> => {
-    const opts = {
-      filter: command.filter,
-      scope: "sub",
-      attributes: ["*"],
-    };
+    const opts = this.constructOptions(command.filter);
 
     return await getEntriesByFilter(
       command.credentials.username,
@@ -16,6 +13,12 @@ class GetByFilterCommandHandler {
       command.organizationalUnits
     );
   };
+
+  private constructOptions = (filter) => ({
+    filter: filter,
+    scope: "sub",
+    attributes: ["*"],
+  });
 }
 
 export class GetByFilterCommand {
@@ -34,7 +37,7 @@ export class GetByFilterCommand {
   }) {
     this.credentials = credentials;
     this.filter = filter;
-    this.organizationalUnits = `ou=${ous.reverse().join(",ou=")}`;
+    this.organizationalUnits = constructOrganizationalUnits(ous);
   }
 }
 

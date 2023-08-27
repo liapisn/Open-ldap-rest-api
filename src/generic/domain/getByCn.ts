@@ -1,5 +1,6 @@
 import { Credentials } from "../../common/types/auth";
 import { getEntryByCn } from "../gateway/getByCn";
+import { constructOrganizationalUnits } from "./common";
 
 class GetByCnCommandHandler {
   handle = async (command: GetByCnCommand): Promise<any> => {
@@ -34,7 +35,7 @@ export class GetByCnCommand {
   }) {
     this.credentials = credentials;
     this.cn = cn;
-    this.organizationalUnits = `ou=${ous.reverse().join(",ou=")}`;
+    this.organizationalUnits = constructOrganizationalUnits(ous);
   }
 }
 
