@@ -9,33 +9,45 @@ export const update = async (
   ou: string,
   newFields: object
 ) => {
-  return await new Promise((resolve, reject) => {
-    ldapClient.bind(username, password, async (err) => {
+  return await new Promise<void>((resolve, reject) => {
+    ldapClient.bind(username, password, async (err): Promise<void> => {
       if (err) {
         return reject(new LoginError("Wrong credentials"));
       }
 
-      const result = new Promise((resolve, reject) => {
-        const change = ldapChange("replace", newFields);
-        ldapClient.modify(`cn=${cn},${ou},ou=system`, change, (err) => {
-          if (err) {
-            switch (err.code) {
-              case 16:
-              case 32:
-                return reject(new NoSuchAttribute(err.message));
-              default:
-                return reject(new Error(err));
-            }
-          }
-          return resolve(true);
-        });
-      });
+      try {
+        for (const newFieldKey in newFields) {
+          await updateField(ldapClient, cn, ou, {
+            [newFieldKey]: newFields[newFieldKey],
+          });
+        }
+      } catch (e) {
+        return reject(e);
+      }
+      return resolve();
+    });
+  });
+};
 
-      result
-        .catch((err) => {
-          return reject(err);
-        })
-        .then(() => resolve(true));
+const updateField = async (
+  ldapClient,
+  cn,
+  ou,
+  newField: object
+): Promise<void> => {
+  return await new Promise<void>((resolve, reject) => {
+    const change = ldapChange("replace", newField);
+    ldapClient.modify(`cn=${cn},${ou},ou=system`, change, (err) => {
+      if (err) {
+        switch (err.code) {
+          case 16:
+          case 32:
+            return reject(new NoSuchAttribute(err.message));
+          default:
+            return reject(new Error(err));
+        }
+      }
+      return resolve();
     });
   });
 };

@@ -9,7 +9,7 @@ class UpdateEntryCommandHandler {
       command.credentials.password,
       command.cn,
       command.organizationalUnits,
-      command.updatedField
+      command.updatedFields
     );
   };
 }
@@ -18,23 +18,23 @@ export class UpdateCommand {
   credentials: Credentials;
   cn: string;
   organizationalUnits: string;
-  updatedField: Object;
+  updatedFields: Object;
 
   constructor({
     credentials,
     cn,
     ous,
-    updatedField,
+    updatedFields,
   }: {
     credentials: Credentials;
     cn: string;
     ous: string[];
-    updatedField: object;
+    updatedFields: object;
   }) {
     this.credentials = credentials;
     this.cn = cn;
     this.organizationalUnits = constructOrganizationalUnits(ous);
-    this.updatedField = updatedField;
+    this.updatedFields = updatedFields;
   }
 }
 
