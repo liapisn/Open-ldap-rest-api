@@ -1,15 +1,15 @@
 import { Credentials } from "../../common/types/auth";
-import { getEntriesByFilter } from "../gateway/get";
+import { getEntryByCn } from "../gateway/getByCn";
 
-class GetByFilterCommandHandler {
-  handle = async (command: GetByFilterCommand): Promise<any> => {
+class GetByCnCommandHandler {
+  handle = async (command: GetByCnCommand): Promise<any> => {
     const opts = {
-      filter: command.filter,
+      filter: `cn=${command.cn}`,
       scope: "sub",
       attributes: ["*"],
     };
 
-    return await getEntriesByFilter(
+    return await getEntryByCn(
       command.credentials.username,
       command.credentials.password,
       opts,
@@ -18,24 +18,24 @@ class GetByFilterCommandHandler {
   };
 }
 
-export class GetByFilterCommand {
+export class GetByCnCommand {
   credentials: Credentials;
-  filter: string;
+  cn: string;
   organizationalUnits: string;
 
   constructor({
     credentials,
-    filter,
+    cn,
     ous,
   }: {
     credentials: Credentials;
-    filter: string;
+    cn: string;
     ous: string[];
   }) {
     this.credentials = credentials;
-    this.filter = filter;
+    this.cn = cn;
     this.organizationalUnits = `ou=${ous.reverse().join(",ou=")}`;
   }
 }
 
-export const constructHandler = new GetByFilterCommandHandler();
+export const constructByCnHandler = new GetByCnCommandHandler();

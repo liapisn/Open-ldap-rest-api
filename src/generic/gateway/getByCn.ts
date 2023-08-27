@@ -3,23 +3,16 @@ import { LoginError } from "../../common/errors/LoginError";
 import { NotFound } from "../domain/errors/NotFound";
 import { InvalidOrganizationalUnit } from "../domain/errors/InvalidOrganizationalUnit";
 
-export const getEntriesByFilter = async (username, password, options, ou) => {
+export const getEntryByCn = async (username, password, options, ou) => {
   return await new Promise<any>((resolve, reject) => {
     ldapClient.bind(username, password, async (err) => {
       if (err) {
         return reject(new LoginError("Wrong credentials"));
       }
 
-      const entries = new Promise<any | null>((resolve, reject) => {
+      const entry = await new Promise<any | null>((resolve, reject) => {
         ldapClient.search(`${ou},ou=system`, options, async (err, res) => {
-          const entries = [] as {
-            dn: String;
-            uid: String;
-            sn: String;
-            cn: String;
-          }[];
-
-          if (err) return reject(new NotFound("Not found"));
+          if (err) return reject(new NotFound("Entry not found"));
 
           res.on("searchEntry", (entry) => {
             if (entry.pojo.attributes.length) {
@@ -30,9 +23,11 @@ export const getEntriesByFilter = async (username, password, options, ou) => {
                 },
                 { dn: entry.pojo.objectName }
               );
-              entries.push(result);
+
+              return resolve(result);
             }
           });
+
           res.on("error", (err) => {
             switch (err.code) {
               case 32:
@@ -43,18 +38,13 @@ export const getEntriesByFilter = async (username, password, options, ou) => {
           });
 
           res.on("end", () => {
-            ldapClient.unbind();
-            return resolve(entries);
+            return resolve(null);
           });
         });
       });
 
-      return entries
-        .then((result) => {
-          if (!result?.length) return reject(new NotFound("Entry not found"));
-          return resolve(result);
-        })
-        .catch((err) => reject(err));
+      if (!entry) return reject(new NotFound("Entry not found"));
+      return resolve(entry);
     });
   });
 };
