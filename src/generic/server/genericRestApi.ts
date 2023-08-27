@@ -10,7 +10,7 @@ import {
   CopyCommandHandler,
 } from "../domain";
 import { CreateCommand } from "../domain/create";
-import { GetByCnCommand, GetByFilterCommand } from "../domain/get";
+import { GetByFilterCommand } from "../domain/get";
 import { UpdateCommand } from "../domain/update";
 import { DeleteCommand } from "../domain/delete";
 import { CopyCommand } from "../domain/copy";
@@ -20,6 +20,7 @@ import { NoSuchAttribute } from "../domain/errors/NoSuchAttribute";
 import { NotFound } from "../domain/errors/NotFound";
 import { InvalidOrganizationalUnit } from "../domain/errors/InvalidOrganizationalUnit";
 import { AlreadyExists } from "../domain/errors/AlreadyExists";
+import { GetByCnCommand } from "../domain/getByCn";
 
 export const getGenericBody = Joi.object({
   filter: Joi.string().required(),

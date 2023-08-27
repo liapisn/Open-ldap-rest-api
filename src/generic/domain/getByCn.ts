@@ -1,41 +1,42 @@
 import { Credentials } from "../../common/types/auth";
-import { update } from "../gateway/update";
+import { getEntryByCn } from "../gateway/getByCn";
 import { constructOrganizationalUnits } from "./common";
 
-class UpdateEntryCommandHandler {
-  handle = async (command: UpdateCommand) => {
-    await update(
+class GetByCnCommandHandler {
+  handle = async (command: GetByCnCommand): Promise<any> => {
+    const opts = {
+      filter: `cn=${command.cn}`,
+      scope: "sub",
+      attributes: ["*"],
+    };
+
+    return await getEntryByCn(
       command.credentials.username,
       command.credentials.password,
-      command.cn,
-      command.organizationalUnits,
-      command.updatedField
+      opts,
+      command.organizationalUnits
     );
   };
 }
 
-export class UpdateCommand {
+export class GetByCnCommand {
   credentials: Credentials;
   cn: string;
   organizationalUnits: string;
-  updatedField: Object;
 
   constructor({
     credentials,
     cn,
     ous,
-    updatedField,
   }: {
     credentials: Credentials;
     cn: string;
     ous: string[];
-    updatedField: object;
   }) {
     this.credentials = credentials;
     this.cn = cn;
     this.organizationalUnits = constructOrganizationalUnits(ous);
-    this.updatedField = updatedField;
   }
 }
 
-export const constructHandler = new UpdateEntryCommandHandler();
+export const constructByCnHandler = new GetByCnCommandHandler();

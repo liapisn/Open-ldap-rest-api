@@ -1,5 +1,6 @@
 import { Credentials } from "../../common/types/auth";
 import deleteEntry from "../gateway/delete";
+import { constructOrganizationalUnits } from "./common";
 
 class DeleteCommandHandler {
   handle = async (command: DeleteCommand): Promise<void> => {
@@ -28,7 +29,7 @@ export class DeleteCommand {
   }) {
     this.credentials = credentials;
     this.cn = cn;
-    this.organizationalUnits = `ou=${ous.reverse().join(",ou=")}`;
+    this.organizationalUnits = constructOrganizationalUnits(ous);
   }
 }
 
