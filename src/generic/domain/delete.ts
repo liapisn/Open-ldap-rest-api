@@ -1,10 +1,10 @@
 import { Credentials } from "../../common/types/auth";
-import deleteEntry from "../gateway/delete";
+import { deleteEntity } from "../gateway/delete";
 import { constructOrganizationalUnits } from "./common";
 
 class DeleteCommandHandler {
   handle = async (command: DeleteCommand): Promise<void> => {
-    await deleteEntry(
+    await deleteEntity(
       command.credentials.username,
       command.credentials.password,
       command.cn,
