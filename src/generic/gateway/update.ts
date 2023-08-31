@@ -1,12 +1,13 @@
 import { ldapChange, ldapClient } from "../../common/ldapClient";
 import { LoginError } from "../../common/errors/LoginError";
 import { NoSuchAttribute } from "../domain/errors/NoSuchAttribute";
+import { constructOrganizationalUnits } from "./common";
 
 export const update = async (
   username: string,
   password: string,
   cn: string,
-  ou: string,
+  ous: string[],
   newFields: object
 ) => {
   return await new Promise<void>((resolve, reject) => {
@@ -17,7 +18,7 @@ export const update = async (
 
       try {
         for (const newFieldKey in newFields) {
-          await updateField(ldapClient, cn, ou, {
+          await updateField(ldapClient, cn, constructOrganizationalUnits(ous), {
             [newFieldKey]: newFields[newFieldKey],
           });
         }

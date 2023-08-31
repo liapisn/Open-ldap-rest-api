@@ -4,6 +4,12 @@ import { LoginCommandHandler } from "../domain";
 import { Request, Response } from "express";
 import { LoginError } from "../../common/errors/LoginError";
 import { APIError } from "../../common/errors/RestApiError";
+import Joi from "joi";
+
+export const loginBodySchema = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().required(),
+});
 
 export const login = async (req: Request, res: Response): Promise<Response> => {
   const { username, password } = req.body;

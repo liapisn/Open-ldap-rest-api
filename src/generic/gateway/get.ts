@@ -3,12 +3,13 @@ import { LoginError } from "../../common/errors/LoginError";
 import { NotFound } from "../domain/errors/NotFound";
 import { InvalidOrganizationalUnit } from "../domain/errors/InvalidOrganizationalUnit";
 import { Entity } from "../domain/types";
+import { constructOrganizationalUnits } from "./common";
 
 export const getEntriesByFilter = async (
   username,
   password,
   options,
-  ou
+  ous: string[]
 ): Promise<Entity[]> => {
   return await new Promise<Entity[]>((resolve, reject) => {
     ldapClient.bind(username, password, async (err) => {
@@ -17,7 +18,11 @@ export const getEntriesByFilter = async (
       }
 
       try {
-        const entries = await getEntries(ldapClient, ou, options);
+        const entries = await getEntries(
+          ldapClient,
+          constructOrganizationalUnits(ous),
+          options
+        );
 
         if (!entries.length) return reject(new NotFound("Entry not found"));
         return resolve(entries);

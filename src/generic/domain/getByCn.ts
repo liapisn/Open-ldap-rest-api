@@ -1,6 +1,5 @@
 import { Credentials } from "../../common/types/auth";
 import { getEntryByCn } from "../gateway/getByCn";
-import { constructOrganizationalUnits } from "./common";
 import { Entity } from "./types";
 
 class GetByCnCommandHandler {
@@ -23,7 +22,7 @@ class GetByCnCommandHandler {
 export class GetByCnCommand {
   credentials: Credentials;
   cn: string;
-  organizationalUnits: string;
+  organizationalUnits: string[];
 
   constructor({
     credentials,
@@ -36,7 +35,7 @@ export class GetByCnCommand {
   }) {
     this.credentials = credentials;
     this.cn = cn;
-    this.organizationalUnits = constructOrganizationalUnits(ous);
+    this.organizationalUnits = ous;
   }
 }
 

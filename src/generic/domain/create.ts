@@ -1,6 +1,5 @@
 import { Credentials } from "../../common/types/auth";
 import { create } from "../gateway/create";
-import { constructOrganizationalUnits } from "./common";
 
 class CreateCommandHandler {
   handle = async (command: CreateCommand) => {
@@ -25,7 +24,7 @@ export class CreateCommand {
     cn: string;
     sn: string;
   };
-  organizationalUnits: string;
+  organizationalUnits: string[];
   constructor({
     credentials,
     data,
@@ -41,7 +40,7 @@ export class CreateCommand {
   }) {
     this.credentials = credentials;
     this.data = data;
-    this.organizationalUnits = constructOrganizationalUnits(ous);
+    this.organizationalUnits = ous;
   }
 }
 
