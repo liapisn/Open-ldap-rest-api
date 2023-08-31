@@ -1,6 +1,5 @@
 import { Credentials } from "../../common/types/auth";
 import { getEntriesByFilter } from "../gateway/get";
-import { constructOrganizationalUnits } from "./common";
 import { Entity } from "./types";
 
 class GetByFilterCommandHandler {
@@ -25,7 +24,7 @@ class GetByFilterCommandHandler {
 export class GetByFilterCommand {
   credentials: Credentials;
   filter: string;
-  organizationalUnits: string;
+  organizationalUnits: string[];
 
   constructor({
     credentials,
@@ -38,7 +37,7 @@ export class GetByFilterCommand {
   }) {
     this.credentials = credentials;
     this.filter = filter;
-    this.organizationalUnits = constructOrganizationalUnits(ous);
+    this.organizationalUnits = ous;
   }
 }
 

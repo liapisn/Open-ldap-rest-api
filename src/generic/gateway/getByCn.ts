@@ -3,12 +3,13 @@ import { LoginError } from "../../common/errors/LoginError";
 import { NotFound } from "../domain/errors/NotFound";
 import { InvalidOrganizationalUnit } from "../domain/errors/InvalidOrganizationalUnit";
 import { Entity } from "../domain/types";
+import { constructOrganizationalUnits } from "./common";
 
 export const getEntryByCn = async (
   username,
   password,
   options,
-  ou
+  ous: string[]
 ): Promise<Entity> => {
   return await new Promise<Entity>((resolve, reject) => {
     ldapClient.bind(username, password, async (err) => {
@@ -17,7 +18,11 @@ export const getEntryByCn = async (
       }
 
       try {
-        const entry = await getEntry(ldapClient, options, ou);
+        const entry = await getEntry(
+          ldapClient,
+          options,
+          constructOrganizationalUnits(ous)
+        );
 
         return resolve(entry);
       } catch (e) {

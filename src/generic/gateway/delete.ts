@@ -1,8 +1,9 @@
 import { ldapClient } from "../../common/ldapClient";
 import { LoginError } from "../../common/errors/LoginError";
 import { NotFound } from "../domain/errors/NotFound";
+import { constructOrganizationalUnits } from "./common";
 
-export const deleteEntity = async (username, password, cn, ou) => {
+export const deleteEntity = async (username, password, cn, ous) => {
   return await new Promise<void>((resolve, reject) => {
     ldapClient.bind(username, password, async (err) => {
       if (err) {
@@ -10,7 +11,7 @@ export const deleteEntity = async (username, password, cn, ou) => {
       }
 
       try {
-        await deleteEntry(ldapClient, cn, ou);
+        await deleteEntry(ldapClient, cn, constructOrganizationalUnits(ous));
         return resolve();
       } catch (e) {
         return reject(e);

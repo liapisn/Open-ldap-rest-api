@@ -2,6 +2,7 @@ import { ldapClient } from "../../common/ldapClient";
 import { LoginError } from "../../common/errors/LoginError";
 import { AlreadyExists } from "../domain/errors/AlreadyExists";
 import { InvalidOrganizationalUnit } from "../domain/errors/InvalidOrganizationalUnit";
+import { constructOrganizationalUnits } from "./common";
 
 export const create = async (
   username,
@@ -16,7 +17,12 @@ export const create = async (
       }
 
       try {
-        await addEntry(ldapClient, ou, options.cn, options);
+        await addEntry(
+          ldapClient,
+          constructOrganizationalUnits(ou),
+          options.cn,
+          options
+        );
         return resolve();
       } catch (e) {
         return reject(e);

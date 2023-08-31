@@ -1,6 +1,5 @@
 import { Credentials } from "../../common/types/auth";
 import { update } from "../gateway/update";
-import { constructOrganizationalUnits } from "./common";
 
 class UpdateEntryCommandHandler {
   handle = async (command: UpdateCommand) => {
@@ -17,7 +16,7 @@ class UpdateEntryCommandHandler {
 export class UpdateCommand {
   credentials: Credentials;
   cn: string;
-  organizationalUnits: string;
+  organizationalUnits: string[];
   updatedFields: Object;
 
   constructor({
@@ -33,7 +32,7 @@ export class UpdateCommand {
   }) {
     this.credentials = credentials;
     this.cn = cn;
-    this.organizationalUnits = constructOrganizationalUnits(ous);
+    this.organizationalUnits = ous;
     this.updatedFields = updatedFields;
   }
 }

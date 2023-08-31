@@ -1,6 +1,5 @@
 import { Credentials } from "../../common/types/auth";
 import { deleteEntity } from "../gateway/delete";
-import { constructOrganizationalUnits } from "./common";
 
 class DeleteCommandHandler {
   handle = async (command: DeleteCommand): Promise<void> => {
@@ -16,7 +15,7 @@ class DeleteCommandHandler {
 export class DeleteCommand {
   credentials: Credentials;
   cn: string;
-  organizationalUnits: string;
+  organizationalUnits: string[];
 
   constructor({
     credentials,
@@ -29,7 +28,7 @@ export class DeleteCommand {
   }) {
     this.credentials = credentials;
     this.cn = cn;
-    this.organizationalUnits = constructOrganizationalUnits(ous);
+    this.organizationalUnits = ous;
   }
 }
 
