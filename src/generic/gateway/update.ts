@@ -17,8 +17,9 @@ export const update = async (
       }
 
       try {
+        const organizationalUnit = constructOrganizationalUnits(ous);
         for (const newFieldKey in newFields) {
-          await updateField(ldapClient, cn, constructOrganizationalUnits(ous), {
+          await updateField(ldapClient, cn, organizationalUnit, {
             [newFieldKey]: newFields[newFieldKey],
           });
         }
