@@ -7,14 +7,12 @@ import {
   CreateCommandHandler,
   UpdateCommandHandler,
   DeleteCommandHandler,
-  CopyCommandHandler,
 } from "../domain";
 import { CreateCommand } from "../domain/create";
 import { GetByFilterCommand } from "../domain/get";
 import { GetByCnCommand } from "../domain/getByCn";
 import { UpdateCommand } from "../domain/update";
 import { DeleteCommand } from "../domain/delete";
-import { CopyCommand } from "../domain/copy";
 import { LoginError } from "../../common/errors/LoginError";
 import { APIError } from "../../common/errors/RestApiError";
 import { NoSuchAttribute } from "../domain/errors/NoSuchAttribute";
@@ -172,33 +170,6 @@ export const genericUpdate = async (
       throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
     if (e instanceof NoSuchAttribute)
       throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
-
-    throw e;
-  }
-  return res.sendStatus(HttpStatusCode.OK);
-};
-
-export const copyBody = Joi.object({
-  location: Joi.string().required(),
-  dn: Joi.string().required(),
-});
-
-export const copy = async (req: Request, res: Response): Promise<Response> => {
-  const command = new CopyCommand({
-    credentials: req.credentials,
-    location: req.body.location,
-    dn: req.body.dn,
-  });
-
-  try {
-    await CopyCommandHandler.handle(command);
-  } catch (e) {
-    if (e instanceof LoginError)
-      throw new APIError(HttpStatusCode.UNAUTHORIZED, e.message);
-    if (e instanceof NoSuchAttribute)
-      throw new APIError(HttpStatusCode.NOT_FOUND, e.message);
-    if (e instanceof AlreadyExists)
-      throw new APIError(HttpStatusCode.CONFLICT, e.message);
 
     throw e;
   }

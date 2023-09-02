@@ -19,13 +19,3 @@ export const ldapChange = (operation: string, field: object) => {
     },
   });
 };
-
-export const ldapCopy = (operation: string, dn: string) => {
-  return new ldap.Change({
-    operation: operation,
-    modification: {
-      type: "uniqueMember",
-      values: [dn],
-    },
-  });
-};
