@@ -20,7 +20,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     const cookie = await LoginCommandHandler.handle(command);
 
     res.cookie("credentials", cookie, {
-      maxAge: 600000,
+      maxAge: expirationTimeInSecs(10),
       httpOnly: true,
       sameSite: "lax",
     });
@@ -32,3 +32,5 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     throw e;
   }
 };
+
+const expirationTimeInSecs = (sec: number) => sec * 60000;
