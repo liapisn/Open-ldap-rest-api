@@ -1,0 +1,212 @@
+{
+	"info": {
+		"_postman_id": "e60d40d0-653d-4b03-8cac-9fb4905c7175",
+		"name": "Open ldap rest api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24682875"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"uid=admin,ou=system\",\n    \"password\": \"secret\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/auth/login",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "General",
+			"item": [
+				{
+					"name": "Get entries",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filter\": \"|(&(cn=*liap*)(uid=21950))(sn=HUA)\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/users/its",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"users",
+								"its"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get entry by cn",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/users/its/cns/:cn",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"users",
+								"its",
+								"cns",
+								":cn"
+							],
+							"variable": [
+								{
+									"key": "cn",
+									"value": "Liap1s"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create entry",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"entryData\": {\n        \"cn\": \"nikos liapis\",\n        \"sn\": \"HUA\",\n        \"displayName\": \"Thesis\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/users/its",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"users",
+								"its"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete entry",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/users/its/cns/:cn",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"users",
+								"its",
+								"cns",
+								":cn"
+							],
+							"variable": [
+								{
+									"key": "cn",
+									"value": "Liap1s"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update entry",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"updatedFields\": {\n        \"displayName\": \"Nikolaos\",\n        \"sn\": \"HUA\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/users/its/cns/:cn",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"users",
+								"its",
+								"cns",
+								":cn"
+							],
+							"variable": [
+								{
+									"key": "cn",
+									"value": "Liap1s"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
